@@ -1,7 +1,6 @@
 package objectstorage
 
 import dispatch._, Defaults._
-import com.ning.http.client
 import com.ning.http.client.Response
 
 /**
@@ -10,7 +9,7 @@ import com.ning.http.client.Response
  */
 sealed trait Connection
 
-final case class Authorized(authUrl: String) extends Connection
+final case class Authorized(authToken: String, storageUrl: String) extends Connection
 
 final case class NotAuthorized(code: Int) extends Connection
 
@@ -27,7 +26,10 @@ object Connection extends ApiHeaders {
       case Right(resp) =>
         println(resp)
         resp.getStatusCode match {
-          case 200 => Authorized(JsonResponse(resp)("storage")(network))
+          case 200 =>
+            val authToken = resp.getHeader(X_AUTH_TOKEN)
+            val storageUrl = resp.getHeader(X_STORAGE_URL)
+            Authorized(authToken, storageUrl)
           case code => NotAuthorized(code)
         }
       case Left(StatusCode(code)) => NotAuthorized(code)
@@ -38,15 +40,6 @@ object Connection extends ApiHeaders {
 
   private def createAuthHeaders(userName: String, apiKey: String): Map[String, String] = {
     Map(X_STORAGE_USER -> userName, X_STORAGE_PASS -> apiKey, "Content-Length" -> "0")
-  }
-}
-
-import scala.util.parsing.json.JSON
-
-object JsonResponse extends (client.Response => Map[String, Map[String, String]]) {
-
-  def apply(response: Response): Map[String, Map[String, String]] = {
-    JSON.parseFull(response.getResponseBody).getOrElse(Map()).asInstanceOf[Map[String, Map[String, String]]]
   }
 }
 

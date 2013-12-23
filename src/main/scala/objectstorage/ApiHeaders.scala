@@ -25,5 +25,8 @@ trait ApiHeaders {
   val X_CDN_ENABLED = "X-CDN-Enabled"
   val X_STORAGE_USER = "X-Storage-User"
   val X_STORAGE_PASS = "X-Storage-Pass"
+  val X_CONTAINER_READ = "X-Container-Read"
 
 }
+
+object ApiHeaders extends ApiHeaders
