@@ -23,5 +23,7 @@ trait ApiHeaders {
   val X_CDN_STREAM_FLASH_URL = "X-cdn-stream-flash-url"
   val X_CDN_TTL = "X-TTL"
   val X_CDN_ENABLED = "X-CDN-Enabled"
+  val X_STORAGE_USER = "X-Storage-User"
+  val X_STORAGE_PASS = "X-Storage-Pass"
 
 }
