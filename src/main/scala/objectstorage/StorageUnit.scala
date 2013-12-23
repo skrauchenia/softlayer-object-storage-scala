@@ -19,7 +19,7 @@ sealed trait StorageUnit extends ApiHeaders {
 
   protected def doPut(requestUrl: String, connection: Connection,
                       headers: Map[String, String] = Map()): Future[Response] = {
-    val svc = url(requestUrl).GET <:< headers
+    val svc = url(requestUrl).PUT <:< headers
     Http(svc)
   }
 
@@ -41,6 +41,12 @@ sealed trait StorageUnit extends ApiHeaders {
     Http(svc)
   }
 
+  protected def doDelete(requestUrl: String, connection: Connection,
+                       headers: Map[String, String] = Map()): Future[Response] = {
+    val svc = url(requestUrl).HEAD <:< headers
+    Http(svc)
+  }
+
 }
 
 case class StorageContainer(name: String, cdn: Boolean = false) extends StorageUnit {
@@ -50,14 +56,16 @@ case class StorageContainer(name: String, cdn: Boolean = false) extends StorageU
     else "" -> ""
   }
 
+  def createContainerUrl(connection: Authorized) = s"${connection.storageUrl}/$name"
+
   def create(connection: Authorized): Future[Response] = {
     val headers = Map(getAuthHeader(connection), cdnHeader)
-    val svc = url(s"${connection.storageUrl}/$name").PUT <:< headers
-
-    Http(svc)
+    doPut(createContainerUrl(connection), connection, headers)
   }
 
-  def delete(connection: Authorized): Future[Response] = ???
+  def delete(connection: Authorized): Future[Response] = {
+    doDelete(createContainerUrl(connection), connection, Map(getAuthHeader(connection)))
+  }
 }
 
 case class StorageObject(name: String, container: StorageContainer) extends StorageUnit {

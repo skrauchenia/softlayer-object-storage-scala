@@ -24,7 +24,6 @@ object Connection extends ApiHeaders {
 
     response match {
       case Right(resp) =>
-        println(resp)
         resp.getStatusCode match {
           case 200 =>
             val authToken = resp.getHeader(X_AUTH_TOKEN)

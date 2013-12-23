@@ -9,14 +9,12 @@ import com.ning.http.client.Response
  */
 case class Api[T <: StorageUnit](connection: Connection) {
 
-  type Status = Int
-
-  def create(obj: T): Status = doAuthorizedAction(connection) { connection =>
+  def create(obj: T): Response = doAuthorizedAction(connection) { connection =>
     val future = obj.create(connection)
-    extractResponse(future).getStatusCode
+    extractResponse(future)
   }
 
-  def delete(obj: T): Unit = doAuthorizedAction(connection) { connection =>
+  def delete(obj: T): Response = doAuthorizedAction(connection) { connection =>
     val future = obj.delete(connection)
     extractResponse(future)
   }
