@@ -9,4 +9,7 @@ jdk:
 branches:
   only:
     - master
+
 script: sbt ++$TRAVIS_SCALA_VERSION compile
+
+
