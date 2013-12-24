@@ -25,10 +25,10 @@ class StorageObjectActionsTest extends BaseSpec {
     }
   }
 
-  def createContainerAndApi(cdn: Boolean = false): (Api[StorageUnit], StorageContainer) = {
+  def createContainerAndApi(cdn: Boolean = false): (Api, StorageContainer) = {
     val containerName = UUID.randomUUID().toString
     val connection = Connection(userName, apiKey)
-    val api = Api[StorageUnit](connection)
+    val api = Api(connection)
     val container = StorageContainer(containerName)
 
     (api, container)

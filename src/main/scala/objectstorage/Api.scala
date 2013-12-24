@@ -7,14 +7,14 @@ import com.ning.http.client.Response
  *
  * @author Sergey Krauchenia
  */
-case class Api[T <: StorageUnit](connection: Connection) {
+case class Api(connection: Connection) {
 
-  def create(obj: T): Response = doAuthorizedAction(connection) { connection =>
+  def create(obj: StorageUnit): Response = doAuthorizedAction(connection) { connection =>
     val future = obj.create(connection)
     extractResponse(future)
   }
 
-  def delete(obj: T): Response = doAuthorizedAction(connection) { connection =>
+  def delete(obj: StorageUnit): Response = doAuthorizedAction(connection) { connection =>
     val future = obj.delete(connection)
     extractResponse(future)
   }
