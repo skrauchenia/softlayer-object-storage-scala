@@ -2,6 +2,8 @@ package objectstorage
 
 import dispatch._, Defaults._
 import com.ning.http.client.Response
+import java.nio.file.Files
+import java.io.File
 
 /**
  *
@@ -13,37 +15,44 @@ sealed trait StorageUnit extends ApiHeaders {
 
   def delete(connection: Authorized): Future[Response]
 
+  def name(): String
+
+  protected def constructUnitUrl(connection: Authorized): String
+
   def getAuthHeader(connection: Authorized) = {
     X_AUTH_TOKEN -> connection.authToken
   }
 
-  protected def doPut(requestUrl: String, connection: Connection,
-                      headers: Map[String, String] = Map()): Future[Response] = {
-    val svc = url(requestUrl).PUT <:< headers
-    Http(svc)
+  protected def doPut(requestUrl: String, connection: Authorized,
+                      headers: Map[String, String] = Map.empty): Future[Response] = {
+    performRequest(requestUrl, connection, headers, "PUT")
   }
 
-  protected def doGet(requestUrl: String, connection: Connection,
-                      headers: Map[String, String] = Map()): Future[Response] = {
-    val svc = url(requestUrl).GET <:< headers
-    Http(svc)
+  protected def doGet(requestUrl: String, connection: Authorized,
+                      headers: Map[String, String] = Map.empty): Future[Response] = {
+    performRequest(requestUrl, connection, headers, "GET")
   }
 
-  protected def doPost(requestUrl: String, connection: Connection,
-                      headers: Map[String, String] = Map()): Future[Response] = {
-    val svc = url(requestUrl).POST <:< headers
-    Http(svc)
+  protected def doPost(requestUrl: String, connection: Authorized,
+                      headers: Map[String, String] = Map.empty): Future[Response] = {
+    performRequest(requestUrl, connection, headers, "POST")
   }
 
-  protected def doHead(requestUrl: String, connection: Connection,
-                      headers: Map[String, String] = Map()): Future[Response] = {
-    val svc = url(requestUrl).HEAD <:< headers
-    Http(svc)
+  protected def doHead(requestUrl: String, connection: Authorized,
+                      headers: Map[String, String] = Map.empty): Future[Response] = {
+    performRequest(requestUrl, connection, headers, "HEAD")
   }
 
-  protected def doDelete(requestUrl: String, connection: Connection,
-                       headers: Map[String, String] = Map()): Future[Response] = {
-    val svc = url(requestUrl).HEAD <:< headers
+  protected def doDelete(requestUrl: String, connection: Authorized,
+                       headers: Map[String, String] = Map.empty): Future[Response] = {
+    performRequest(requestUrl, connection, headers, "DELETE")
+  }
+
+  protected def performRequest(requestUrl: String, connection: Authorized,
+                               headers: Map[String, String] = Map.empty, method: String): Future[Response] = {
+
+    val headersWithAuth = headers + getAuthHeader(connection)
+    val svc = url(requestUrl).setMethod(method) <:< headersWithAuth
     Http(svc)
   }
 
@@ -53,24 +62,34 @@ case class StorageContainer(name: String, cdn: Boolean = false) extends StorageU
 
   val cdnHeader: (String, String) = {
     if (cdn) X_CONTAINER_READ -> ".r:*"
-    else "" -> ""
+    else "n" -> "0"
   }
 
-  def createContainerUrl(connection: Authorized) = s"${connection.storageUrl}/$name"
+  def constructUnitUrl(connection: Authorized) = s"${connection.storageUrl}/$name"
 
   def create(connection: Authorized): Future[Response] = {
-    val headers = Map(getAuthHeader(connection), cdnHeader)
-    doPut(createContainerUrl(connection), connection, headers)
+    val headers = Map(cdnHeader)
+    doPut(constructUnitUrl(connection), connection, headers)
   }
 
   def delete(connection: Authorized): Future[Response] = {
-    doDelete(createContainerUrl(connection), connection, Map(getAuthHeader(connection)))
+    doDelete(constructUnitUrl(connection), connection)
   }
 }
 
-case class StorageObject(name: String, container: StorageContainer) extends StorageUnit {
+case class StorageObject(name: String, filePath: String, container: StorageContainer) extends StorageUnit {
 
-  def create(connection: Authorized): Future[Response] = ???
+  def constructUnitUrl(connection: Authorized) = {
+    container.constructUnitUrl(connection) + "/" + name
+  }
+  
+  def create(connection: Authorized): Future[Response] = {
+    val headersWithAuth = Map(getAuthHeader(connection))
+    val svc = url(constructUnitUrl(connection)).PUT <:< headersWithAuth <<< new File(filePath)
+    Http(svc)
+  }
 
-  def delete(connection: Authorized): Future[Response] = ???
+  def delete(connection: Authorized): Future[Response] = {
+    doDelete(constructUnitUrl(connection), connection)
+  }
 }

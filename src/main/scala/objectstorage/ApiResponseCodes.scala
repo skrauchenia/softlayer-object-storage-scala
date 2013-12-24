@@ -14,6 +14,9 @@ trait ApiResponseCodes {
   val CONTAINER_DELETE_OK = 204
   /** container didn't deleted because it doesn't exists */
   val CONTAINER_DELETE_NOT_EXIST = 404
+
+  /** object created successfully */
+  val OBJECT_CREATE_OK = 201
 }
 
 object ApiResponseCodes extends ApiResponseCodes
