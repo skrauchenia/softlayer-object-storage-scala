@@ -11,5 +11,3 @@ branches:
     - master
 
 script: sbt ++$TRAVIS_SCALA_VERSION compile
-
-
