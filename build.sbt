@@ -1,10 +1,12 @@
 name := "softlayer-object-storage-scala"
 
-organization := "softlayer"
+organization := "com.cherrit"
 
 version := "0.5beta-SNAPSHOT"
 
 scalaVersion := "2.10.3"
+
+crossScalaVersions := Seq("2.10.3")
 
 libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.0"
 
