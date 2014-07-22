@@ -2,7 +2,7 @@ name := "softlayer-object-storage-scala"
 
 organization := "com.cherrit"
 
-version := "0.5beta-SNAPSHOT"
+version := "0.6beta-SNAPSHOT"
 
 scalaVersion := "2.10.3"
 
