@@ -1,8 +1,6 @@
 package objectstorage
 
 import dispatch._, Defaults._
-import com.ning.http.client.Response
-import java.nio.file.Files
 import java.io.File
 
 /**

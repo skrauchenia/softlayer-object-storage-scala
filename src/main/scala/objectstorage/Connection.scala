@@ -1,7 +1,6 @@
 package objectstorage
 
 import dispatch._, Defaults._
-import com.ning.http.client.Response
 
 /**
  *

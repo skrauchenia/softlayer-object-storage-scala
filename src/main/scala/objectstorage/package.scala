@@ -4,6 +4,9 @@
  */
 package object objectstorage {
 
+  type Future[+T] = dispatch.Future[T]
+  type Response = com.ning.http.client.Response
+
   val ENDPOINTS = Map (
     "dal05" -> Map (
       "public" -> Map (
