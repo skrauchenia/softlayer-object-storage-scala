@@ -13,6 +13,7 @@ class StorageObjectActionsTest extends BaseSpec {
       val (api, container) = createContainerAndApi()
       val response = api create container
       response.getStatusCode should be equalTo ApiResponseCodes.CONTAINER_CREATE_OK
+
       val obj = createObject(container)
       val fileResp = api create obj
       api delete obj

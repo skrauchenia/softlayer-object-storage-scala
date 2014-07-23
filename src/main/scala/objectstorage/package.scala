@@ -1,3 +1,4 @@
+
 /**
  *
  * @author Sergey Krauchenia
@@ -6,6 +7,7 @@ package object objectstorage {
 
   type Future[+T] = dispatch.Future[T]
   type Response = com.ning.http.client.Response
+  type ResponseHeaders = com.ning.http.client.FluentCaseInsensitiveStringsMap
 
   val ENDPOINTS = Map (
     "dal05" -> Map (

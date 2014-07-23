@@ -7,13 +7,27 @@ import java.io.File
  *
  * @author Sergey Krauchenia
  */
-sealed trait StorageUnit extends ApiHeaders {
+sealed trait StorageUnit extends ApiHeaders with ApiResponseCodes {
+
+  type UnitMetadata <: StorageUnitMetadata
 
   def create(connection: Authorized): Future[Response]
 
   def delete(connection: Authorized): Future[Response]
 
-  def name(): String
+  def get(connection: Authorized): Future[Option[UnitMetadata]]
+
+  protected def get(connection: Authorized, unitFactory: Response => UnitMetadata): Future[Option[UnitMetadata]] = {
+    val futureResponse = doGet(constructUnitUrl(connection), connection)
+    futureResponse.map { response =>
+      response.getStatusCode match {
+        case CONTAINER_GET_OK | CONTAINER_NO_CONTENT => Some(unitFactory(response))
+        case _ => None
+      }
+    }
+  }
+
+  def name: String
 
   protected def constructUnitUrl(connection: Authorized): String
 
@@ -58,6 +72,8 @@ sealed trait StorageUnit extends ApiHeaders {
 
 case class StorageContainer(name: String, cdn: Boolean = false) extends StorageUnit {
 
+  type UnitMetadata = StorageFolder
+
   val cdnHeader: (String, String) = {
     if (cdn) X_CONTAINER_READ -> ".r:*"
     else "n" -> "0"
@@ -73,9 +89,15 @@ case class StorageContainer(name: String, cdn: Boolean = false) extends StorageU
   def delete(connection: Authorized): Future[Response] = {
     doDelete(constructUnitUrl(connection), connection)
   }
+
+  def get(connection: Authorized): Future[Option[StorageFolder]] = {
+    get(connection, response => StorageFolder(response.getHeaders, response.getUri))
+  }
 }
 
 case class StorageObject(name: String, filePath: String, container: StorageContainer) extends StorageUnit {
+
+  type UnitMetadata = StorageFile
 
   def constructUnitUrl(connection: Authorized) = {
     container.constructUnitUrl(connection) + "/" + name
@@ -89,5 +111,9 @@ case class StorageObject(name: String, filePath: String, container: StorageConta
 
   def delete(connection: Authorized): Future[Response] = {
     doDelete(constructUnitUrl(connection), connection)
+  }
+
+  def get(connection: Authorized): Future[Option[StorageFile]] = {
+    get(connection, response => StorageFile(response.getHeaders, response.getUri))
   }
 }

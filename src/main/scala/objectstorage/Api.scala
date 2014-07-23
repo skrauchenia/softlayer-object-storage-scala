@@ -18,6 +18,12 @@ case class Api(connection: Connection) {
     obj.delete(connection)
   }
 
+  def getContainer(withName: String): Future[Option[StorageFolder]] = doAuthorizedAction(connection) { connection =>
+    StorageContainer(withName).get(connection)
+  }
+
+  def getFile(fileName: String) = ???
+
   def doAuthorizedAction[R](conn: Connection)(block: => (Authorized) => R): R = conn match {
     case (auth: Authorized) => block(auth)
     case (notAuth: NotAuthorized) => throw new IllegalStateException("Not authorized")
@@ -25,8 +31,12 @@ case class Api(connection: Connection) {
 
   object blocking {
 
-    def create(obj: StorageUnit): Response = asyncApi.create(obj)()
+    def create(obj: StorageUnit): Response = (asyncApi create obj)()
 
-    def delete(obj: StorageUnit): Response = asyncApi.delete(obj)()
+    def delete(obj: StorageUnit): Response = (asyncApi delete obj)()
+
+    def getContainer(withName: String): Option[StorageFolder] = {
+      (asyncApi getContainer withName)()
+    }
   }
 }
