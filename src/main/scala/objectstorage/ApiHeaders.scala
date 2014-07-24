@@ -28,6 +28,14 @@ trait ApiHeaders {
   val X_CONTAINER_READ = "X-Container-Read"
   val UPLOADED_FILE_MD5 = "Etag"
 
+  def authHeader(implicit authorizedConnection: Authorized) = {
+    X_AUTH_TOKEN -> authorizedConnection.authToken
+  }
+
+  def cdnHeader(cdn: Boolean): (String, String) = {
+    if (cdn) X_CONTAINER_READ -> ".r:*"
+    else "n" -> "0"
+  }
 }
 
 object ApiHeaders extends ApiHeaders

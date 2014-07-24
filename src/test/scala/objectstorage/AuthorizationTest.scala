@@ -7,12 +7,12 @@ package objectstorage
 class AuthorizationTest extends BaseSpec {
 
   "Connection" should {
-    "authorized successfully with valid credentials" in {
-      Connection(userName, apiKey) should beAnInstanceOf[Authorized]
+    "authorized successfully with valid credentials" in new ApiSpecContext {
+      Connection(userName, apiKey) must beAnInstanceOf[Authorized]
     }
 
-    "failed to authorized with invalid credentials" in {
-      Connection("invalid-username", apiKey) should beAnInstanceOf[NotAuthorized]
+    "failed to authorized with invalid credentials" in new ApiSpecContext {
+      Connection("invalid-username", apiKey) must beAnInstanceOf[NotAuthorized]
     }
   }
 

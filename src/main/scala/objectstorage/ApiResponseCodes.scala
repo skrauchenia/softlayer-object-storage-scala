@@ -21,6 +21,8 @@ trait ApiResponseCodes {
 
   /** object created successfully */
   val OBJECT_CREATE_OK = 201
+  /** indicates if file found */
+  val OBJECT_GET_OK = 200
 }
 
 object ApiResponseCodes extends ApiResponseCodes

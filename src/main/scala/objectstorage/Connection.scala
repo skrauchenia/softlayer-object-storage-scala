@@ -8,9 +8,9 @@ import dispatch._, Defaults._
  */
 sealed trait Connection
 
-final case class Authorized(authToken: String, storageUrl: String) extends Connection
+private[objectstorage] case class Authorized(authToken: String, storageUrl: String) extends Connection
 
-final case class NotAuthorized(code: Int) extends Connection
+private[objectstorage] case class NotAuthorized(code: Int) extends Connection
 
 object Connection extends ApiHeaders {
 
