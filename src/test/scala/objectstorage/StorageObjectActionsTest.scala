@@ -27,7 +27,7 @@ class StorageObjectActionsTest extends BaseSpec {
       val obj = createObject(container)
       api create obj
 
-      val metadata = api get obj
+      val metadata = api getMetadata obj
 
       api delete obj
       api delete container
@@ -37,7 +37,7 @@ class StorageObjectActionsTest extends BaseSpec {
     }
 
     "return None if acquiring file not exist" in new ApiSpecContext {
-      val metadata = api get RemoteObjectPath("not-exists")
+      val metadata = api getMetadata RemoteObjectPath("not-exists")
       metadata must beNone
     }
 
@@ -46,11 +46,11 @@ class StorageObjectActionsTest extends BaseSpec {
       val obj = createObject(container)
       api create obj
 
-      val metadata = api get obj
+      val metadata = api getMetadata obj
       metadata must beSome
 
       api delete obj
-      val notExistingObject = api get obj
+      val notExistingObject = api getMetadata obj
       api delete container
 
       notExistingObject must beNone

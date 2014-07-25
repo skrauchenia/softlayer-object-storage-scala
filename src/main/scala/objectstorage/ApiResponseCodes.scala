@@ -23,6 +23,8 @@ trait ApiResponseCodes {
   val OBJECT_CREATE_OK = 201
   /** indicates if file found */
   val OBJECT_GET_OK = 200
+  /** indicates if object not found */
+  val OBJECT_NOT_FOUND = 404
 }
 
 object ApiResponseCodes extends ApiResponseCodes

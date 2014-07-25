@@ -16,17 +16,14 @@ sealed trait RemoteObjectMetadata extends ApiHeaders {
 
 }
 
-case class RemoteFolderMetadata(protected val headers: ResponseHeaders, url: URI) extends RemoteObjectMetadata {
+case class RemoteFolderMetadata(headers: ResponseHeaders, url: URI) extends RemoteObjectMetadata {
 
   lazy val objectsCount = getHeaderValue("X-Container-Object-Count").toLong
   lazy val objectsLength = getHeaderValue("X-Container-Bytes-Used").toLong
   lazy val cdnEnabled = getHeaderValue(X_CONTAINER_READ) == ".r:*"
 }
 
-case class RemoteFileMetadata(protected val headers: ResponseHeaders, url: URI) extends RemoteObjectMetadata {
-
-  lazy val content: Array[Byte] = ???
-}
+case class RemoteFileMetadata(headers: ResponseHeaders, url: URI) extends RemoteObjectMetadata
 
 object RemoteObjectMetadata {
 

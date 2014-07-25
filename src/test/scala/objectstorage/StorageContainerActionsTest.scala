@@ -52,7 +52,7 @@ class StorageContainerActionsTest extends BaseSpec {
       val createContainerResponse = api create container
       createContainerResponse.getStatusCode must beEqualTo(ApiResponseCodes.CONTAINER_CREATE_OK)
 
-      val objMetadata = api get RemoteObjectPath(container.name)
+      val objMetadata = api getMetadata RemoteObjectPath(container.name)
       api delete container
 
       objMetadata must beSome
@@ -60,7 +60,7 @@ class StorageContainerActionsTest extends BaseSpec {
     }
 
     "receive None if container not exists" in new ApiSpecContext {
-      val folder = api get RemoteObjectPath(containerName)
+      val folder = api getMetadata RemoteObjectPath(containerName)
       folder must beNone
     }
   }

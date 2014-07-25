@@ -1,6 +1,6 @@
 package objectstorage
 
-import java.io.File
+import java.io.{FileNotFoundException, File}
 
 import dispatch._, Defaults._
 
@@ -27,8 +27,21 @@ object Api extends ApiHeaders with ApiResponseCodes {
     internal.doDelete(objectPath.constructObjectUrl)
   }
 
-  def get(objectPath: RemoteObjectPath)(implicit connection: Connection): Future[Option[RemoteObjectMetadata]] = doAuthorizedAction { implicit authorized =>
+  // TODO: handle big files
+  def download(objectPath: RemoteObjectPath)(implicit connection: Connection): Future[Array[Byte]] = doAuthorizedAction { implicit authorized =>
     val futureResponse = internal.doGet(objectPath.constructObjectUrl)
+
+    futureResponse.map { response =>
+      response.getStatusCode match {
+        case OBJECT_GET_OK => response.getResponseBodyAsBytes
+        case OBJECT_NOT_FOUND => throw new FileNotFoundException(s"File with path ${objectPath.constructObjectUrl} not found")
+        case code => throw new Exception(s"${response.getStatusText}:$code -  Failed to download file ${objectPath.constructObjectUrl}")
+      }
+    }
+  }
+
+  def getMetadata(objectPath: RemoteObjectPath)(implicit connection: Connection): Future[Option[RemoteObjectMetadata]] = doAuthorizedAction { implicit authorized =>
+    val futureResponse = internal.doHead(objectPath.constructObjectUrl)
 
     futureResponse.map { response =>
       response.getStatusCode match {
@@ -56,8 +69,11 @@ object Api extends ApiHeaders with ApiResponseCodes {
     def delete(objectPath: RemoteObjectPath)(implicit connection: Connection): Response =
       (asyncApi delete objectPath)(connection)()
 
-    def get(objectPath: RemoteObjectPath)(implicit connection: Connection): Option[RemoteObjectMetadata] =
-      (asyncApi get objectPath)(connection)()
+    def getMetadata(objectPath: RemoteObjectPath)(implicit connection: Connection): Option[RemoteObjectMetadata] =
+      (asyncApi getMetadata objectPath)(connection)()
+
+    def download(objectPath: RemoteObjectPath)(implicit connection: Connection): Array[Byte] =
+      (asyncApi download objectPath)(connection)()
   }
 
   private object internal {
