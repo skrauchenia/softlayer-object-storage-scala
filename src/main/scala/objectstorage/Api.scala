@@ -51,8 +51,6 @@ object Api extends ApiHeaders with ApiResponseCodes {
     }
   }
 
-  def getFile(fileName: String) = ???
-
   private def doAuthorizedAction[R](block: Authorized => R)(implicit connection: Connection): R = connection match {
     case (auth: Authorized) => block(auth)
     case (notAuth: NotAuthorized) => throw new IllegalStateException("Not authorized")

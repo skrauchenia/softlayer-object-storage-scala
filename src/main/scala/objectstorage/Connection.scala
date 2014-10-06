@@ -6,7 +6,9 @@ import dispatch._, Defaults._
  *
  * @author Sergey Krauchenia
  */
-sealed trait Connection
+sealed trait Connection {
+  def isAuthorized: Boolean = this.isInstanceOf[Authorized]
+}
 
 private[objectstorage] case class Authorized(authToken: String, storageUrl: String) extends Connection
 
