@@ -1,6 +1,6 @@
 package objectstorage
 
-import java.io.{FileNotFoundException, File}
+import java.io.File
 
 import dispatch._, Defaults._
 
@@ -27,14 +27,16 @@ object Api extends ApiHeaders with ApiResponseCodes {
     internal.doDelete(objectPath.constructObjectUrl)
   }
 
+  type FileData = Array[Byte]
+
   // TODO: handle big files
-  def download(objectPath: RemoteObjectPath)(implicit connection: Connection): Future[Array[Byte]] = doAuthorizedAction { implicit authorized =>
+  def download(objectPath: RemoteObjectPath)(implicit connection: Connection): Future[Option[FileData]] = doAuthorizedAction { implicit authorized =>
     val futureResponse = internal.doGet(objectPath.constructObjectUrl)
 
     futureResponse.map { response =>
       response.getStatusCode match {
-        case OBJECT_GET_OK => response.getResponseBodyAsBytes
-        case OBJECT_NOT_FOUND => throw new FileNotFoundException(s"File with path ${objectPath.constructObjectUrl} not found")
+        case OBJECT_GET_OK => Option(response.getResponseBodyAsBytes)
+        case OBJECT_NOT_FOUND => None
         case code => throw new Exception(s"${response.getStatusText}:$code -  Failed to download file ${objectPath.constructObjectUrl}")
       }
     }
@@ -70,7 +72,7 @@ object Api extends ApiHeaders with ApiResponseCodes {
     def getMetadata(objectPath: RemoteObjectPath)(implicit connection: Connection): Option[RemoteObjectMetadata] =
       (asyncApi getMetadata objectPath)(connection)()
 
-    def download(objectPath: RemoteObjectPath)(implicit connection: Connection): Array[Byte] =
+    def download(objectPath: RemoteObjectPath)(implicit connection: Connection): Option[FileData] =
       (asyncApi download objectPath)(connection)()
   }
 

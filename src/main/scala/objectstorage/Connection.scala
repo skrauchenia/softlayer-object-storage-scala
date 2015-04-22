@@ -34,7 +34,6 @@ object Connection extends ApiHeaders {
         }
       case Left(StatusCode(code)) => NotAuthorized(code)
       case Left(e) => throw new RuntimeException(e)
-      case (e: Exception) => throw new RuntimeException("Failed to perform auth operation", e)
     }
   }
 

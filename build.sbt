@@ -2,15 +2,15 @@ name := "softlayer-object-storage-scala"
 
 organization := "com.cherrit"
 
-version := "0.6beta-SNAPSHOT"
+version := "0.7.3-SNAPSHOT"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.6"
 
-crossScalaVersions := Seq("2.10.3")
+crossScalaVersions := Seq("2.10.4", "2.11.6")
 
 libraryDependencies += "net.databinder.dispatch" %% "dispatch-core" % "0.11.0"
 
-libraryDependencies += "org.specs2" %% "specs2" % "2.3.6" % "test"
+libraryDependencies += "org.specs2" %% "specs2-core" % "2.3.11" % "test"
 
 libraryDependencies += "com.typesafe" % "config" % "1.0.2"
 
