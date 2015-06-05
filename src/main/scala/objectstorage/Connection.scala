@@ -2,6 +2,10 @@ package objectstorage
 
 import dispatch._, Defaults._
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
+
 /**
  *
  * @author Sergey Krauchenia
@@ -21,10 +25,10 @@ object Connection extends ApiHeaders {
     val authUrl = ENDPOINTS(dataCenter)(network)(protocol)
     val authHeaders = createAuthHeaders(userName, apiKey)
     val svc = url(authUrl) <:< authHeaders
-    val response: Either[Throwable, Response] = Http(svc).either()
+    val response: Future[Response] = Http(svc)
 
-    response match {
-      case Right(resp) =>
+    Try(Await.result(response, 10.seconds)) match {
+      case Success(resp) =>
         resp.getStatusCode match {
           case 200 =>
             val authToken = resp.getHeader(X_AUTH_TOKEN)
@@ -32,8 +36,8 @@ object Connection extends ApiHeaders {
             Authorized(authToken, storageUrl)
           case code => NotAuthorized(code)
         }
-      case Left(StatusCode(code)) => NotAuthorized(code)
-      case Left(e) => throw new RuntimeException(e)
+      case Failure(StatusCode(code)) => NotAuthorized(code)
+      case Failure(e) => throw e
     }
   }
 

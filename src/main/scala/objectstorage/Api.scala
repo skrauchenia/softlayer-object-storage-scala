@@ -4,6 +4,9 @@ import java.io.File
 
 import dispatch._, Defaults._
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 /**
  *
  * @author Sergey Krauchenia
@@ -61,19 +64,23 @@ object Api extends ApiHeaders with ApiResponseCodes {
   object blocking {
 
     def create(newRemoteFile: NewRemoteFile)(implicit connection: Connection): Response =
-      (asyncApi create newRemoteFile)(connection)()
+      awaitWithTimeout(asyncApi create newRemoteFile)
 
     def create(newRemoteFolder: NewRemoteFolder)(implicit connection: Connection): Response =
-      (asyncApi create newRemoteFolder)(connection)()
+      awaitWithTimeout(asyncApi create newRemoteFolder)
 
     def delete(objectPath: RemoteObjectPath)(implicit connection: Connection): Response =
-      (asyncApi delete objectPath)(connection)()
+      awaitWithTimeout(asyncApi delete objectPath)
 
     def getMetadata(objectPath: RemoteObjectPath)(implicit connection: Connection): Option[RemoteObjectMetadata] =
-      (asyncApi getMetadata objectPath)(connection)()
+      awaitWithTimeout(asyncApi getMetadata objectPath)
 
     def download(objectPath: RemoteObjectPath)(implicit connection: Connection): Option[FileData] =
-      (asyncApi download objectPath)(connection)()
+      awaitWithTimeout(asyncApi download objectPath)
+  }
+
+  private def awaitWithTimeout[T](f: Future[T]): T = {
+    Await.result(f, 10.seconds)
   }
 
   private object internal {
